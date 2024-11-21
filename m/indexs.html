@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="studentApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="app.js"></script>
+    <style>
+        .error { color: red; font-size: 12px; }
+        .form-section { margin-bottom: 20px; }
+        .item-list li { margin: 10px 0; }
+        form { padding: 10px; border: 1px solid #ccc; background: #f9f9f9; }
+        header h1 { text-align: center; }
+        label { display: block; margin-bottom: 8px; }
+    </style>
+</head>
+<body ng-controller="MainController as mainCtrl">
+
+    <header>
+        <h1>Student Registration</h1>
+    </header>
+
+    <!-- Custom Directive Example -->
+    <custom-directive message="mainCtrl.factoryMessage"></custom-directive>
+
+    <!-- Student Registration Form -->
+    <form ng-submit="mainCtrl.submitForm()">
+        <div class="form-section">
+            <h2>Student Info</h2>
+            <label>
+                Name: <input type="text" ng-model="mainCtrl.student.name" required>
+            </label>
+            <div class="error" ng-show="mainCtrl.errors.name">{{ mainCtrl.errors.name }}</div>
+
+            <label>
+                Standard: <input type="text" ng-model="mainCtrl.student.std" required>
+            </label>
+            <div class="error" ng-show="mainCtrl.errors.std">{{ mainCtrl.errors.std }}</div>
+
+            <label>
+                Section: <input type="text" ng-model="mainCtrl.student.sec" required>
+            </label>
+            <div class="error" ng-show="mainCtrl.errors.sec">{{ mainCtrl.errors.sec }}</div>
+        </div>
+
+        <div class="form-section">
+            <h2>Parent Info</h2>
+            <label>
+                Parent's Name: <input type="text" ng-model="mainCtrl.student.parent_name" required>
+            </label>
+            <div class="error" ng-show="mainCtrl.errors.parent_name">{{ mainCtrl.errors.parent_name }}</div>
+
+            <label>
+                Occupation: <input type="text" ng-model="mainCtrl.student.occupation" required>
+            </label>
+            <div class="error" ng-show="mainCtrl.errors.occupation">{{ mainCtrl.errors.occupation }}</div>
+
+            <label>
+                Salary: <input type="number" ng-model="mainCtrl.student.salary" required>
+            </label>
+            <div class="error" ng-show="mainCtrl.errors.salary">{{ mainCtrl.errors.salary }}</div>
+        </div>
+
+        <div class="form-section">
+            <h2>Personal Info</h2>
+            <label>
+                Date of Birth: <input type="date" ng-model="mainCtrl.student.dob" required>
+            </label>
+            <div class="error" ng-show="mainCtrl.errors.dob">{{ mainCtrl.errors.dob }}</div>
+
+            <label>
+                Address: <textarea ng-model="mainCtrl.student.address" required></textarea>
+            </label>
+            <div class="error" ng-show="mainCtrl.errors.address">{{ mainCtrl.errors.address }}</div>
+
+            <label>
+                Phone Number: <input type="text" ng-model="mainCtrl.student.phone" required>
+            </label>
+            <div class="error" ng-show="mainCtrl.errors.phone">{{ mainCtrl.errors.phone }}</div>
+        </div>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- Display Registered Students -->
+    <section>
+        <h2>Registered Students</h2>
+        <ul class="item-list">
+            <li ng-repeat="student in mainCtrl.students | orderBy:'name'">
+                <strong>{{ student.name | capitalize }}</strong> - Class: {{ student.std }}, Section: {{ student.sec }},
+                Parent: {{ student.parent_name }} ({{ student.occupation }})
+            </li>
+        </ul>
+    </section>
+
+</body>
+</html>

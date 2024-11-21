@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Registration System</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f1f1f1;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .actions button {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body ng-app="employeeApp" ng-controller="EmployeeController">
+
+<div class="container">
+    <h1>Employee Registration System</h1>
+
+    <!-- Form for Adding or Editing -->
+    <form ng-submit="submitForm()">
+        <input type="hidden" ng-model="employee._id" />
+        <input type="text" ng-model="employee.name" placeholder="Name" required />
+        <input type="number" ng-model="employee.age" placeholder="Age" required />
+        <input type="number" ng-model="employee.exp" placeholder="Experience (years)" required />
+        <input type="text" ng-model="employee.phone" placeholder="Phone No" required />
+        <button type="submit">Save</button>
+    </form>
+
+    <!-- Employee List -->
+    <h2>Employees</h2>
+    <ul>
+        <li ng-repeat="emp in employees | filter:searchText">
+            <span>{{ emp.name }} (Age: {{ emp.age }}, Exp: {{ emp.exp }} years, Phone: {{ emp.phone }})</span>
+            <div class="actions">
+                <button ng-click="editEmployee(emp)">Edit</button>
+                <button ng-click="deleteEmployee(emp._id)">Delete</button>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<script>
+    // AngularJS Module and Controller
+    angular.module('employeeApp', [])
+        .controller('EmployeeController', ['$scope', '$http', function($scope, $http) {
+            $scope.employees = [];
+            $scope.employee = {};
+
+            // Load Employees
+            $scope.loadEmployees = function() {
+                $http.get('http://localhost:5000/employees')
+                    .then(function(response) {
+                        $scope.employees = response.data;
+                    }, function(error) {
+                        console.error('Error fetching employees:', error);
+                    });
+            };
+
+            // Submit Form
+            $scope.submitForm = function() {
+                if ($scope.employee._id) {
+                    // Edit existing employee
+                    $http.put('http://localhost:5000/employees/' + $scope.employee._id, $scope.employee)
+                        .then(function(response ) {
+                            $scope.loadEmployees(); // Refresh employee list
+                        }, function(error) {
+                            console.error('Error updating employee:', error);
+                        });
+                } else {
+                    // Add new employee
+                    $http.post('http://localhost:5000/employees', $scope.employee)
+                        .then(function(response) {
+                            $scope.loadEmployees(); // Refresh employee list
+                        }, function(error) {
+                            console.error('Error adding employee:', error);
+                        });
+                }
+                $scope.resetForm();
+            };
+
+            // Edit Employee
+            $scope.editEmployee = function(emp) {
+                $scope.employee = angular.copy(emp);
+            };
+
+            // Delete Employee
+            $scope.deleteEmployee = function(id) {
+                $http.delete('http://localhost:5000/employees/' + id)
+                    .then(function(response) {
+                        $scope.loadEmployees(); // Refresh employee list
+                    }, function(error) {
+                        console.error('Error deleting employee:', error);
+                    });
+            };
+
+            // Reset Form
+            $scope.resetForm = function() {
+                $scope.employee = {};
+            };
+
+            // Initial Load
+            $scope.loadEmployees();
+        }]);
+</script>
+
+</body>
+</html>

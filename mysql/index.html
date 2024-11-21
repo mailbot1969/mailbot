@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <title>Student Management System</title>
+</head>
+<body ng-app="myApp" ng-controller="myController">
+    <header class="header">
+        <h1>{{title | uppercase}}</h1>
+    </header>
+    <main>
+        <div class="container">
+            <div class="box">
+                <form ng-submit="postStudent()">
+                    <div class="form-group">
+                        <label for="name">Name: </label>
+                        <input type="text" id="name" ng-model="newStudent.name" class="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject: </label>
+                        <input type="text" id="subject" ng-model="newStudent.subject" class="subject">
+                    </div>
+                    <div class="form-group">
+                        <label for="mark">Mark: </label>
+                        <input type="text" id="mark" ng-model="newStudent.mark" class="mark">
+                    </div>
+                    <input type="submit" value="Add Student" class="submit-btn">
+                </form>
+            </div>
+            <div class="box">
+                <input type="text" id="name_search" ng-model="name" placeholder="Search by name">
+                <table class="table-class">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Subject</th>
+                            <th>Mark</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="student in students | filter:name">
+                        <tr>
+                            <td>{{student.name}}</td>
+                            <td>{{student.subject}}</td>
+                            <td>{{student.mark}}</td>
+                            <td>
+                                <!-- Add Delete button -->
+                                <button ng-click="deleteStudent(student.name)">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const app = angular.module("myApp", []);
+
+        app.controller("myController", ($scope, myService) => {
+            $scope.title = "Student Management System";
+            $scope.students = [];
+            $scope.newStudent = {};
+
+            // Get student data
+            $scope.getStud = function () {
+                myService.getStudents()
+                    .then((response) => {
+                        $scope.students = response.data;
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            };
+
+            // Post student data
+            $scope.postStudent = function () {
+                myService.postStudent($scope.newStudent)
+                    .then((response) => {
+                        $scope.newStudent = {};
+                        $scope.getStud();
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            };
+            $scope.deleteStudent = function(studentId) {
+                myService.deleteStudent(studentId).then((response) => {
+                    alert("Student deleted successfully.");
+                    $scope.getStud();  
+                }).catch((err) => {
+                    console.log(err);
+                    alert("Error deleting student.");
+                });
+            };
+            // Initialize student list
+            $scope.getStud();
+        });
+
+        app.service("myService", function ($http) {
+            const baseURL = "http://localhost:3000";
+
+            // Service to get student data
+            this.getStudents = function () {
+                return $http.get(`${baseURL}/view`);
+            };
+
+            // Service to post student data
+            this.postStudent = function (req) {
+                return $http.post(`${baseURL}/post`, req);
+            };
+            this.deleteStudent = function(id) {
+                return $http.delete(`${baseURL}/delete/${id}`);
+            };
+        });
+    </script>
+</body>
+</html>
